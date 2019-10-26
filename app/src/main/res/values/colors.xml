@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#ff7b00</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <!-- Background colors used for the different moods -->
+    <color name="colorSad">#DE3C50</color>
+    <color name="colorDisappointed">#ff9b9b9b</color>
+    <color name="colorNormal">#468AD9</color>
+    <color name="colorHappy">#B8E986</color>
+    <color name="colorSuperHappy">#F8EC50</color>
+
+    <color name="gradient_start_color">#4c84ff</color>
+    <color name="gradient_end_color">#18a3fe</color>
+
+</resources>
