@@ -9,8 +9,17 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GestureDetectorCompat
 import utils.*
+import android.app.AlarmManager
+import android.app.PendingIntent
+import androidx.core.app.ComponentActivity
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import java.util.*
+
 
 class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
 
@@ -18,7 +27,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
     private lateinit var moodHistoryButton : ImageButton
     private lateinit var addCommentbutton : ImageButton
     private lateinit var mDetector: GestureDetectorCompat
-    private lateinit var parentRelativeLayout: RelativeLayout
+    private lateinit var parentConstraintLayout: ConstraintLayout
 
     private var currentDay : Int = 0
     private var currentMoodIndex : Int = 0
@@ -35,7 +44,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
         moodImageView = findViewById<ImageView>(R.id.my_mood)
         moodHistoryButton = findViewById(R.id.btn_mood_history)
         addCommentbutton = findViewById(R.id.btn_add_comment)
-        parentRelativeLayout = findViewById(R.id.parent_relative_layout)
+        parentConstraintLayout = findViewById(R.id.parent_constraint_layout)
 
         mDetector = GestureDetectorCompat(this, this)
 
@@ -45,7 +54,8 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
         currentMoodIndex = sharedPreferences.getInt(KEY_CURRENT_MOOD, 3);
         currentComment = sharedPreferences.getString(KEY_CURRENT_COMMENT, "");
 
-
+        changeUiMood(currentMoodIndex)
+        scheduleAlarm()
 
         addCommentbutton.setOnClickListener {
 
@@ -140,6 +150,25 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
 
     fun changeUiMood(index : Int){
         moodImageView.setImageResource(constant.moodImageArray[index])
-        parentRelativeLayout.setBackgroundResource(constant.moodColor[index])
+        parentConstraintLayout.setBackgroundResource(constant.moodColor[index])
+    }
+
+    //* Scheduling alarm to save mood everyday
+    private fun scheduleAlarm() {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, UpdateDayReceiver::class.java)
+        val pendingIntent =
+            PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        alarmManager?.setInexactRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar.getTimeInMillis(),
+            AlarmManager.INTERVAL_DAY,
+            pendingIntent
+        )
     }
 }

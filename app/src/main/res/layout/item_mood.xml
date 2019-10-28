@@ -8,34 +8,32 @@
     android:baselineAligned="false">
 
 
-    <TextView
-        android:id="@+id/tv_days"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginEnd="83dp"
-        android:layout_marginRight="83dp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btn_show_comment"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Today" />
+    <FrameLayout
+        android:id="@+id/left_frame_layout"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="20"
+        android:orientation="horizontal"
+        android:padding="32dp"
+        tools:background="@color/colorSuperHappy">
 
-    <ImageButton
-        android:id="@+id/btn_show_comment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginRight="32dp"
-        android:background="@null"
-        android:contentDescription="@string/show_comment_button"
-        android:src="@mipmap/ic_comment_black_48px"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/right_frame_layout"
-        app:layout_constraintStart_toEndOf="@+id/tv_days"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/tv_days"
+            android:layout_gravity="start|center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Today"
+            android:textStyle="bold"/>
+
+        <ImageButton
+            android:id="@+id/btn_show_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:background="@null"
+            android:contentDescription="@string/show_comment_button"
+            android:src="@mipmap/ic_comment_black_48px" />
+    </FrameLayout>
 
 
     <FrameLayout
