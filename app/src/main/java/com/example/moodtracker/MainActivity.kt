@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
         currentComment = sharedPreferences.getString(KEY_CURRENT_COMMENT, "");
 
         changeUiMood(currentMoodIndex)
-        scheduleAlarm()
+        //scheduleAlarm()
 
         addCommentbutton.setOnClickListener {
 
