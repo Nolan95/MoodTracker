@@ -11,13 +11,10 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GestureDetectorCompat
-import utils.*
-import android.app.AlarmManager
-import android.app.PendingIntent
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import com.example.moodtracker.utils.*
+import android.util.Log
+import com.example.moodtracker.data.Mood
+import java.lang.Exception
 import java.util.*
 
 
@@ -35,7 +32,14 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
 
     private lateinit var sharedPreferences : SharedPreferences
 
-    private lateinit var constant:Constants
+
+    private lateinit var historyPrefs : SharedPreferences
+
+    private var constant = Constants()
+
+    private var moods = mutableListOf<Mood>()
+
+    private var historyMood = mutableListOf<Mood>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,11 +54,13 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
 
 
         sharedPreferences = getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
-        currentDay = sharedPreferences.getInt(KEY_CURRENT_DAY, 1);
-        currentMoodIndex = sharedPreferences.getInt(KEY_CURRENT_MOOD, 3);
-        currentComment = sharedPreferences.getString(KEY_CURRENT_COMMENT, "");
+        historyPrefs = getSharedPreferences(HISOTORY, Context.MODE_PRIVATE)
+        moods = jsonToMoodList(sharedPreferences)
+        //currentDay = sharedPreferences.getInt(KEY_CURRENT_DAY, 1);
+        //currentMoodIndex = sharedPreferences.getInt(KEY_CURRENT_MOOD, 3);
+        //currentComment = sharedPreferences.getString(KEY_CURRENT_COMMENT, "");
 
-        changeUiMood(currentMoodIndex)
+        checkTheMood(moods)
         //scheduleAlarm()
 
         addCommentbutton.setOnClickListener {
@@ -65,7 +71,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
             builder.setMessage("Comment\uD83E\uDD14 \uD83D\uDCDD").setView(editText)
                 .setPositiveButton("CONFIRM"){dialog, which ->
                     if(!editText.text.toString().isEmpty()){
-                          saveComment(editText.getText().toString(), currentDay, sharedPreferences);
+                        saveComment(editText.getText().toString(), moods, sharedPreferences);
                     }
                     dialog.dismiss();
                     Toast.makeText(this@MainActivity, "Comment saved", Toast.LENGTH_SHORT).show()
@@ -87,13 +93,6 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
 
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        return if (mDetector.onTouchEvent(event)) {
-            true
-        } else {
-            super.onTouchEvent(event)
-        }
-    }
 
     override fun onDown(event: MotionEvent): Boolean {
         //Log.d(DEBUG_TAG, "onDown: $event")
@@ -108,20 +107,25 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
     ): Boolean {
         //Log.d(DEBUG_TAG, "onFling: $event1 $event2")
         val diffY = event2.y - event1.y
-        if(Math.abs(diffY) > SWIPE_THRESHOLD){
-            if(currentMoodIndex < 4){
-                currentMoodIndex++
-                changeUiMood(currentMoodIndex)
-                saveMood(currentMoodIndex, currentDay, sharedPreferences)
+        try {
+            if(Math.abs(diffY) > SWIPE_THRESHOLD){
+                if(diffY > 0){
+                    currentMoodIndex--
+                    Log.i("CurrentmoodIndex", "$currentMoodIndex")
+                    changeUiMood(currentMoodIndex)
+                    saveMood(currentMoodIndex, moods, sharedPreferences)
 
+                }else{
+                    currentMoodIndex++
+                    Log.i("CurrentmoodIndex", "$currentMoodIndex")
+                    changeUiMood(currentMoodIndex)
+                    saveMood(currentMoodIndex, moods, sharedPreferences)
+                }
             }
-        }else if(Math.abs(diffY) < SWIPE_THRESHOLD){
-            if(currentMoodIndex > 0){
-                currentMoodIndex--
-                changeUiMood(currentMoodIndex)
-                saveMood(currentMoodIndex, currentDay, sharedPreferences)
-            }
+        }catch (exception : Exception) {
+            exception.printStackTrace();
         }
+
         return true
     }
 
@@ -148,27 +152,32 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
         return true
     }
 
-    fun changeUiMood(index : Int){
+    fun checkTheMood(moods: MutableList<Mood>){
+        val mood = moods.last()
+        if(mood.mDate.compareTo(Calendar.getInstance().time) == 0) {
+            changeUiMood(mood.mMood)
+            currentMoodIndex = mood.mMood
+        }else{
+            changeUiMood(2)
+            moods.add(Mood(isToday = true, mDate = Calendar.getInstance().time))
+            Log.i("DATE", "${Calendar.getInstance().time}")
+            currentMoodIndex = 2
+            historyMood.add(mood)
+            historyPrefs.edit().putString(MOODS, moodListToJson(historyMood)).apply()
+        }
+    }
+
+    fun changeUiMood(index: Int){
         moodImageView.setImageResource(constant.moodImageArray[index])
         parentConstraintLayout.setBackgroundResource(constant.moodColor[index])
     }
 
-    //* Scheduling alarm to save mood everyday
-    private fun scheduleAlarm() {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 23)
-        calendar.set(Calendar.MINUTE, 59)
-        calendar.set(Calendar.SECOND, 59)
 
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, UpdateDayReceiver::class.java)
-        val pendingIntent =
-            PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        alarmManager?.setInexactRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.getTimeInMillis(),
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
-        )
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return if (mDetector.onTouchEvent(event)) {
+            true
+        } else {
+            super.onTouchEvent(event)
+        }
     }
 }

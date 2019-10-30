@@ -6,40 +6,33 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import utils.*
+import com.example.moodtracker.data.Mood
+import com.example.moodtracker.utils.*
 
 class MoodHistoryActivity : AppCompatActivity() {
 
-    private var sharePreferences : SharedPreferences? = null
-    private var currentDay : Int = 0
+    private lateinit var historyPrefs : SharedPreferences
     private lateinit var moodsRecyclerView : RecyclerView
-    private var moods = ArrayList<Int>()
-    private var comments = ArrayList<String>()
+    private var moods = mutableListOf<Mood>()
     private lateinit var moodAdapter : MoodAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mood_history)
 
-        sharePreferences = getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+        historyPrefs = getSharedPreferences(HISOTORY, Context.MODE_PRIVATE)
 
-        currentDay = sharePreferences!!.getInt(KEY_CURRENT_DAY, 1)
+        moods = jsonToMoodList(historyPrefs)
 
-        for (i in 0 until currentDay) {
-            moods.add(sharePreferences!!.getInt("KEY_MOOD$i", 3))
-            comments.add(sharePreferences!!.getString("KEY_COMMENT$i", "")!!)
-        }
-
-        moodAdapter = MoodAdapter(this@MoodHistoryActivity, moods, comments)
+        moodAdapter = MoodAdapter(this@MoodHistoryActivity, moods)
 
 
         moodsRecyclerView = findViewById(R.id.recycler_moods)
         moodsRecyclerView.apply {
-            layoutManager = LinearLayoutManager(this@MoodHistoryActivity, LinearLayoutManager.VERTICAL, true)
+            layoutManager = LinearLayoutManager(this@MoodHistoryActivity)
 
             adapter = moodAdapter
         }
-
 
 
     }

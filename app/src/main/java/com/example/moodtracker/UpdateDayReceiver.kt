@@ -2,10 +2,7 @@ package com.example.moodtracker
 
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.Intent
-import utils.KEY_CURRENT_DAY
-import utils.PREFERENCES
 
 
 class UpdateDayReceiver : BroadcastReceiver() {
