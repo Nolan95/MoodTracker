@@ -11,10 +11,10 @@ class Constants {
     )
 
     val moodColor = arrayOf(
+        R.color.colorSad,
         R.color.colorDisappointed,
         R.color.colorHappy,
         R.color.colorNormal,
-        R.color.colorSad,
         R.color.colorSuperHappy
     )
 

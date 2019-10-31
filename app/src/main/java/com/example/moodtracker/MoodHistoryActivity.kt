@@ -11,7 +11,7 @@ import com.example.moodtracker.utils.*
 
 class MoodHistoryActivity : AppCompatActivity() {
 
-    private lateinit var historyPrefs : SharedPreferences
+    private lateinit var sharedPreferences: SharedPreferences
     private lateinit var moodsRecyclerView : RecyclerView
     private var moods = mutableListOf<Mood>()
     private lateinit var moodAdapter : MoodAdapter
@@ -20,9 +20,9 @@ class MoodHistoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mood_history)
 
-        historyPrefs = getSharedPreferences(HISOTORY, Context.MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
 
-        moods = jsonToMoodList(historyPrefs)
+        moods = jsonToMoodList(sharedPreferences)
 
         moodAdapter = MoodAdapter(this@MoodHistoryActivity, moods)
 

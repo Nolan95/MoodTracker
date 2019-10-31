@@ -35,15 +35,6 @@ class MoodAdapter(private var context:Context,
 
         val mood = moods.get(position)
         holder.constraintLayout.setBackgroundResource(constant.moodColor[mood.mMood])
-//        val weight: Float
-//        when (mood) {
-//            0 -> weight = 0.2f
-//            1 -> weight = 0.4f
-//            2 -> weight = 0.6f
-//            3 -> weight = 0.8f
-//            4 -> weight = 1.0f
-//            else -> weight = 0.8f
-//        }
 
         //** if there's a comment, show the icon and a toast on click*
         val comment = mood.mComment

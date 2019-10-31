@@ -26,9 +26,10 @@ class LoginActivity : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val userPrefs = getSharedPreferences(USERPREFS, Context.MODE_PRIVATE)
+        val intent = Intent(this, MainActivity::class.java)
 
         if (userPrefs.getString(USERNAME, "") != "") {
-            setContentView(R.layout.activity_main)
+            startActivity(intent)
             val name = userPrefs.getString(USERNAME, "")
             val welcomeBack = "Welcome back " + name
             Toast.makeText(applicationContext, welcomeBack, Toast.LENGTH_LONG).show()
@@ -51,12 +52,14 @@ class LoginActivity : AppCompatActivity(){
                         putString(PASSWORD, password.text.toString())
                     }.apply()
 
-                    username.setText("")
-                    password.setText("")
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
+
                     val welcome = "Welcome" + username.text.toString()
                     Toast.makeText(applicationContext, welcome, Toast.LENGTH_LONG).show()
+                    startActivity(intent)
+                    finish()
+                    username.setText("")
+                    password.setText("")
+
                 }
             }
         }

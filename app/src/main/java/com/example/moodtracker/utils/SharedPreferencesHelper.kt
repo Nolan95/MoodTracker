@@ -10,6 +10,7 @@ import java.util.*
 fun saveComment(comment: String, moods: MutableList<Mood>, sharedPreferences: SharedPreferences) {
     val mood = moods.last()
     mood.mComment = comment
+    moods.set(moods.lastIndex, mood)
     sharedPreferences.edit().putString(MOODS, moodListToJson(moods)).apply()
 }
 
@@ -18,6 +19,7 @@ fun saveComment(comment: String, moods: MutableList<Mood>, sharedPreferences: Sh
 fun saveMood(moodIndex: Int, moods: MutableList<Mood>, sharedPreferences: SharedPreferences) {
     val mood = moods.last()
     mood.mMood = moodIndex
+    moods.set(moods.lastIndex, mood)
     sharedPreferences.edit().putString(MOODS, moodListToJson(moods)).apply()
 }
 
@@ -32,8 +34,8 @@ fun jsonToMoodList(sharedPreferences: SharedPreferences): MutableList<Mood> {
     if (moodsJson == "") return mutableListOf<Mood>(
         Mood(
             mMood = 3,
-            isToday = true,
-            mDate = Calendar.getInstance().time
+            dayOfYear = Calendar.DAY_OF_YEAR,
+            year = Calendar.YEAR
         )
     )
     val groupListType = object : TypeToken<MutableList<Mood>>() {

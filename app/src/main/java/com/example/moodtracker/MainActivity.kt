@@ -13,6 +13,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GestureDetectorCompat
 import com.example.moodtracker.utils.*
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import com.example.moodtracker.data.Mood
 import java.lang.Exception
 import java.util.*
@@ -25,7 +27,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
     private lateinit var addCommentbutton : ImageButton
     private lateinit var mDetector: GestureDetectorCompat
     private lateinit var parentConstraintLayout: ConstraintLayout
-
+    private lateinit var userPrefs: SharedPreferences
     private var currentDay : Int = 0
     private var currentMoodIndex : Int = 0
     private var currentComment : String? = ""
@@ -54,7 +56,6 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
 
 
         sharedPreferences = getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
-        historyPrefs = getSharedPreferences(HISOTORY, Context.MODE_PRIVATE)
         moods = jsonToMoodList(sharedPreferences)
         //currentDay = sharedPreferences.getInt(KEY_CURRENT_DAY, 1);
         //currentMoodIndex = sharedPreferences.getInt(KEY_CURRENT_MOOD, 3);
@@ -93,6 +94,28 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
 
     }
 
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean{
+        menuInflater.inflate(R.menu.my_menu, menu)
+        return true
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        val id = item.getItemId()
+        when(id){
+            R.id.log_out -> {
+                userPrefs = getSharedPreferences(USERPREFS, Context.MODE_PRIVATE)
+                userPrefs.edit().clear().commit()
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
 
     override fun onDown(event: MotionEvent): Boolean {
         //Log.d(DEBUG_TAG, "onDown: $event")
@@ -154,16 +177,15 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
 
     fun checkTheMood(moods: MutableList<Mood>){
         val mood = moods.last()
-        if(mood.mDate.compareTo(Calendar.getInstance().time) == 0) {
+        if(mood.year == Calendar.YEAR && mood.dayOfYear == Calendar.DAY_OF_YEAR){
             changeUiMood(mood.mMood)
             currentMoodIndex = mood.mMood
+
         }else{
             changeUiMood(2)
-            moods.add(Mood(isToday = true, mDate = Calendar.getInstance().time))
+            moods.add(Mood(dayOfYear = Calendar.DAY_OF_YEAR, year = Calendar.YEAR))
             Log.i("DATE", "${Calendar.getInstance().time}")
             currentMoodIndex = 2
-            historyMood.add(mood)
-            historyPrefs.edit().putString(MOODS, moodListToJson(historyMood)).apply()
         }
     }
 

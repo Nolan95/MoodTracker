@@ -6,5 +6,5 @@ import java.util.*
 
 data class Mood(var mMood: Int = 2,
                 var mComment: String ="",
-                var mDate: Date = Date(),
-                var isToday:Boolean = true)
+                var dayOfYear: Int,
+                var year:Int)
