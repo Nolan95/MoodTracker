@@ -28,26 +28,20 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
     private lateinit var mDetector: GestureDetectorCompat
     private lateinit var parentConstraintLayout: ConstraintLayout
     private lateinit var userPrefs: SharedPreferences
-    private var currentDay : Int = 0
     private var currentMoodIndex : Int = 0
-    private var currentComment : String? = ""
 
     private lateinit var sharedPreferences : SharedPreferences
 
-
-    private lateinit var historyPrefs : SharedPreferences
 
     private var constant = Constants()
 
     private var moods = mutableListOf<Mood>()
 
-    private var historyMood = mutableListOf<Mood>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        moodImageView = findViewById<ImageView>(R.id.my_mood)
+        moodImageView = findViewById(R.id.my_mood)
         moodHistoryButton = findViewById(R.id.btn_mood_history)
         addCommentbutton = findViewById(R.id.btn_add_comment)
         parentConstraintLayout = findViewById(R.id.parent_constraint_layout)
@@ -57,12 +51,10 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener{
 
         sharedPreferences = getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
         moods = jsonToMoodList(sharedPreferences)
-        //currentDay = sharedPreferences.getInt(KEY_CURRENT_DAY, 1);
-        //currentMoodIndex = sharedPreferences.getInt(KEY_CURRENT_MOOD, 3);
-        //currentComment = sharedPreferences.getString(KEY_CURRENT_COMMENT, "");
+
 
         checkTheMood(moods)
-        //scheduleAlarm()
+
 
         addCommentbutton.setOnClickListener {
 
